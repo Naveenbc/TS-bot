@@ -25,6 +25,12 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log('\nTo talk to your bot, open the emulator select "Open Bot"');
 });
 
+function respond(req, res, next) {
+    res.send('hello ' + req.params.name);
+    next();
+  }
+  server.get('/hello/:name', respond);
+  server.head('/hello/:name', respond);  
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
 const adapter = new BotFrameworkAdapter({
