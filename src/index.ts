@@ -8,7 +8,7 @@ import * as fs from 'fs';
 const ENV_FILE = path.join(__dirname, '..', '.env');
 config({ path: ENV_FILE });
 
-import * as restify from 'restify';
+import * as express from 'express';
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
@@ -19,32 +19,35 @@ import { EchoBot } from './bot';
 
 
 // Create HTTP server.
-const server = restify.createServer();
+const server = express();
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
     console.log('\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator');
     console.log('\nTo talk to your bot, open the emulator select "Open Bot"');
 });
+server.use('/', express.static(path.join(__dirname, './client')));
 
-function respond(req, res, next) {
-    res.send('hello' + req.params.name);
-    next();
-  }
-  server.get('/hello/:name', respond);
-  server.head('/hello/:name', respond);  
+server.use('/static', express.static(path.join(__dirname, './public')));
 
-  server.get('/', function(req, res, next) {
-    fs.readFile(__dirname + '/client/index.html', function (err, data) {
-        if (err) {
-            next(err);
-            return;
-        }
-        res.setHeader('Content-Type', 'text/html');
-        res.writeHead(200);
-        res.end(data);
-        next();
-    });
-});
+// function respond(req, res, next) {
+//     res.send('hello' + req.params.name);
+//     next();
+//   }
+//   server.get('/hello/:name', respond);
+//   server.head('/hello/:name', respond);  
+
+//   server.get('/', function(req, res, next) {
+//     fs.readFile(__dirname + '/client/index.html', function (err, data) {
+//         if (err) {
+//             next(err);
+//             return;
+//         }
+//         res.setHeader('Content-Type', 'text/html');
+//         res.writeHead(200);
+//         res.end(data);
+//         next();
+//     });
+// });
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
 const adapter = new BotFrameworkAdapter({
@@ -87,18 +90,18 @@ server.post('/api/messages', (req, res) => {
 });
 
 // Listen for Upgrade requests for Streaming.
-server.on('upgrade', (req, socket, head) => {
-    // Create an adapter scoped to this WebSocket connection to allow storing session data.
-    const streamingAdapter = new BotFrameworkAdapter({
-        appId: process.env.MicrosoftAppId,
-        appPassword: process.env.MicrosoftAppPassword
-    });
-    // Set onTurnError for the BotFrameworkAdapter created for each connection.
-    streamingAdapter.onTurnError = onTurnErrorHandler;
+// server.on('upgrade', (req, socket, head) => {
+//     // Create an adapter scoped to this WebSocket connection to allow storing session data.
+//     const streamingAdapter = new BotFrameworkAdapter({
+//         appId: process.env.MicrosoftAppId,
+//         appPassword: process.env.MicrosoftAppPassword
+//     });
+//     // Set onTurnError for the BotFrameworkAdapter created for each connection.
+//     streamingAdapter.onTurnError = onTurnErrorHandler;
 
-    streamingAdapter.useWebSocket(req, socket, head, async (context) => {
-        // After connecting via WebSocket, run this logic for every request sent over
-        // the WebSocket connection.
-        await myBot.run(context);
-    });
-});
+//     streamingAdapter.useWebSocket(req, socket, head, async (context) => {
+//         // After connecting via WebSocket, run this logic for every request sent over
+//         // the WebSocket connection.
+//         await myBot.run(context);
+//     });
+// });
