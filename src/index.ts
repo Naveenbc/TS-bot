@@ -4,6 +4,7 @@
 import * as path from 'path';
 
 import { config } from 'dotenv';
+import * as fs from 'fs';
 const ENV_FILE = path.join(__dirname, '..', '.env');
 config({ path: ENV_FILE });
 
@@ -31,6 +32,19 @@ function respond(req, res, next) {
   }
   server.get('/hello/:name', respond);
   server.head('/hello/:name', respond);  
+
+  server.get('/', function(req, res, next) {
+    fs.readFile(__dirname + '/client/index.html', function (err, data) {
+        if (err) {
+            next(err);
+            return;
+        }
+        res.setHeader('Content-Type', 'text/html');
+        res.writeHead(200);
+        res.end(data);
+        next();
+    });
+});
 // Create adapter.
 // See https://aka.ms/about-bot-adapter to learn more about adapters.
 const adapter = new BotFrameworkAdapter({
