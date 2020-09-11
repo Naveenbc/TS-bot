@@ -26,7 +26,7 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 });
 
 function respond(req, res, next) {
-    res.send('hello Saraboji');
+    res.send('hello' + req.params.name);
     next();
   }
   server.get('/hello/:name', respond);
